@@ -2,9 +2,17 @@ import React from "react";
 import styled from "styled-components";
 import YourTitle from "./YourTitle";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
+import { Button } from "react-native";
 
 export default Log = props => {
     const richText = React.createRef();
+
+    const Save = async () => {
+        let html = await richText.current?.getContentHtml();
+        html = html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
+        // console.log(html);
+        alert(html);
+    }
 
 
     return(
@@ -13,7 +21,7 @@ export default Log = props => {
             <Date color={ props.theme.SECONDARY } >{ props.date }</Date>
             <FullEditorContainer>
                 <EditorContainer>
-                    <Title value="My class suck" />
+                    <Title placeholder="Name your log" />
                     <RichEditor
                         editorStyle={{ backgroundColor: props.theme.THIRD }}
                         style={[{ minHeight: 380, flex: 1}, props.theme.THIRD]}
