@@ -1,7 +1,6 @@
 import React from 'react';
 import styled, { ThemeConsumer, ThemeProvider } from 'styled-components';
-import CustomButton from "./components/CustomButton";
-
+import Log from "./components/Log";
 import theme from './theme';
 
 const Container = styled.View`
@@ -11,12 +10,11 @@ const Container = styled.View`
 	align-items: center;
 `;
 export default class App extends React.Component {
+
 	render() {
 		return (
 			<ThemeProvider theme={ theme }>
-				<Container theme={ theme }>
-					<CustomButton text="SIGN UP" theme = { theme } />
-				</Container>
+				<Log theme={ theme } date="June 27 2020" />
 			</ThemeProvider>
 		);
 	}
