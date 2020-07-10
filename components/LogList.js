@@ -89,31 +89,39 @@ function JournalEntry(props) {
 export default class LogList extends React.Component {
     constructor(props) {
         super(props);
-        this.state = { realm: null }
+        this.state = { realm: new Realm({ schema: [LogSchema] }), logs: null }
+        this.state.realm.addListener('change', () => {
+            this.forceUpdate()
+        });
     }
 
     componentWillUnmount() {
         // Close the realm if there is one open.
+        this.setState({
+            logs: this.state.realm.objects('Log')
+        })
         const { realm } = this.state;
         if (realm !== null && !realm.isClosed) {
             realm.close();
         }
     }
 
-    
+    componentDidMount(){
+        this.setState({
+            logs: this.state.realm.objects('Log')
+        })
+    }
 
     render() {
-        let realm = new Realm({ schema: [LogSchema] });
-        let logs = realm.objects('Log');
         return (
             <View style={{ flex: 1, paddingTop: 20 }}>
                 <Title style={{ color: '#000000' }}>
                     Your
               <Title style={{ color: '#BD5AEC' }}> journal</Title>
                 </Title>
-                <FlatList
+                { this.state.logs !== null && <FlatList
                     style={{ flex: 1 }}
-                    data={logs.sorted('date', true)}
+                    data={this.state.logs.sorted('date', true)}
                     renderItem={({ item }) => (
                         <JournalEntry
                             title={item.title}
@@ -124,7 +132,7 @@ export default class LogList extends React.Component {
                         />
                     )}
                     keyExtractor={(item, index) => index.toString()}
-                />
+                />}
 
 
                 <View style={{
