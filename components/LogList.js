@@ -1,10 +1,22 @@
 import 'react-native-gesture-handler';
-import React, { Component, useState } from 'react';
-import { Text, View, TextInput, ScrollView, FlatList, Button } from 'react-native';
-import styled, { ThemeConsumer, ThemeProvider } from 'styled-components';
-import { NavigationContainer } from '@react-navigation/native';
-import { createStackNavigator } from '@react-navigation/stack';
+import React from 'react';
+import { Text, View, FlatList } from 'react-native';
+import styled from 'styled-components';
 import Edit from '../assets/icons/edit.svg'
+
+export const LogSchema = {
+    name: 'Log',
+    primaryKey: 'id',
+    properties: {
+        id: 'string',
+        title: 'string',
+        date: 'date',
+        content: 'string',
+        formattedContent: 'string'
+    }
+};
+
+export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
 const Title = styled.Text`
   font-size: 36px;
@@ -21,7 +33,7 @@ const EntryButton = styled.TouchableOpacity`
   border-top-left-radius: 48px;
   padding-top: 15px;
   align-items: center;
-`
+`;
 
 const DayBox = styled.View`
   width: 33px;
@@ -32,12 +44,12 @@ const DayBox = styled.View`
   left: 16px;
   justify-content: center;
   align-items: center;
-`
+`;
 
 const Day = styled.Text`
   color: white;
   font-size: 18px;
-`
+`;
 
 const EntryDataContainer = styled.TouchableOpacity`
   margin-bottom: 16px;
@@ -49,23 +61,7 @@ const EntryDataContainer = styled.TouchableOpacity`
   box-shadow: 0px 2px 16px black;
   border-radius: 12px;
   elevation: 10;
-`
-
-export const LogSchema = {
-    name: 'Log',
-    primaryKey: 'id',
-    properties: {
-        id: 'string',
-        title: 'string',
-        date: 'date',
-        content: 'string',
-        formattedContent: 'string'
-    }
-};
-
-export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-// const realm = new Realm({ schema: [LogSchema] });
+`;
 
 function JournalEntry(props) {
     return (
@@ -74,12 +70,21 @@ function JournalEntry(props) {
                 props.navigation.navigate('Editor', props.item)
             }}>
                 <DayBox>
-                    <Day>{props.date.getDate()}</Day>
+                    <Day>{ props.date.getDate() }</Day>
                 </DayBox>
                 <View>
-                    <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 14 }}>{months[props.date.getMonth()] + " " + props.date.getFullYear()}</Text>
-                    <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 18 }}>{props.title}</Text>
-                    <Text numberOfLines={1} style={{ fontFamily: "NotoSans-Regular", fontSize: 14 }}>{props.content}</Text>
+                    <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 14 }}>
+                        { months[props.date.getMonth()] + " " + props.date.getFullYear() }
+                    </Text>
+                    <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 18 }}>
+                        { props.title }
+                    </Text>
+                    <Text
+                        numberOfLines={1}
+                        style={{ fontFamily: "NotoSans-Regular", fontSize: 14 }}
+                    >
+                        { props.content }
+                    </Text>
                 </View>
             </EntryDataContainer>
         </View>
@@ -96,11 +101,12 @@ export default class LogList extends React.Component {
     }
 
     componentWillUnmount() {
-        // Close the realm if there is one open.
+        const { realm } = this.state;
+
         this.setState({
             logs: this.state.realm.objects('Log')
         })
-        const { realm } = this.state;
+
         if (realm !== null && !realm.isClosed) {
             realm.close();
         }
@@ -119,20 +125,22 @@ export default class LogList extends React.Component {
                     Your
               <Title style={{ color: '#BD5AEC' }}> journal</Title>
                 </Title>
-                { this.state.logs !== null && <FlatList
-                    style={{ flex: 1 }}
-                    data={this.state.logs.sorted('date', true)}
-                    renderItem={({ item }) => (
-                        <JournalEntry
-                            title={item.title}
-                            date={item.date}
-                            content={item.content}
-                            navigation={this.props.navigation}
-                            item={item}
-                        />
-                    )}
-                    keyExtractor={(item, index) => index.toString()}
-                />}
+                { this.state.logs !== null &&
+                    <FlatList
+                        style={{ flex: 1 }}
+                        data={this.state.logs.sorted('date', true)}
+                        renderItem={({ item }) => (
+                            <JournalEntry
+                                title={item.title}
+                                date={item.date}
+                                content={item.content}
+                                navigation={this.props.navigation}
+                                item={item}
+                            />
+                        )}
+                        keyExtractor={(item, index) => index.toString()}
+                    />
+                }
 
 
                 <View style={{
