@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Log from "./components/Log";
 import theme from './theme';
+import Home from './components/Home';
 import { Button } from 'react-native';
 
 const Container = styled.View`
@@ -29,7 +30,20 @@ export default class App extends React.Component {
 		return (
 			<NavigationContainer>
 				<ThemeProvider theme={ theme }>
-				<Stack.Navigator initialRouteName="Logs" >
+				<Stack.Navigator initialRouteName="Home" >
+					<Stack.Screen
+						name="Home"
+						options={{
+							title: '',
+							headerStyle: {
+							  backgroundColor: theme.FOURTH,
+							  elevation: 0
+							},
+							cardShadowEnabled: false,
+						}}
+					>
+						{ props => <Home {...props} theme={ theme }/>}
+					</Stack.Screen>
 					<Stack.Screen name="Logs" component={dummyLogs} />
 					<Stack.Screen name="Editor">
 						{ props => <Log {...props} theme={ theme } date=" 27 June 2020" />}

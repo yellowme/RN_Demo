@@ -20,7 +20,7 @@ const SpanTitle = styled.Text`
 
 export default YourTitle = props => (
     <Title color={ props.theme.SECONDARY }>
-        Your
+        { props.firstWord ? props.firstWord : "Your"}
         <SpanTitle color={ props.theme.PRIMARY }> { props.secondWord } </SpanTitle>
     </Title>
 );
