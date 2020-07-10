@@ -8,7 +8,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import Log from "./components/Log";
 import theme from './theme';
 import Home from './components/Home';
-import { Button } from 'react-native';
 import LogList from './components/LogList';
 
 const Container = styled.View`
