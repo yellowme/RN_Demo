@@ -26,7 +26,7 @@ const ButtonText = styled.Text`
 
 export default CustomButton = props => (
     <ButtonContainer
-        onPress={() => alert('Hi!')}
+        onPress={ props.function }
         primary={ props.theme.PRIMARY }
         shadow={ props.theme.PRIMARY_BTN_SHADOW}
     >

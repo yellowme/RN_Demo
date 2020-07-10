@@ -7,6 +7,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 
 import Log from "./components/Log";
 import theme from './theme';
+import Home from './components/Home';
 import LogList from './components/LogList';
 
 const Container = styled.View`
@@ -23,23 +24,35 @@ export default class App extends React.Component {
     super(props);
   }
 
-  render() {
-    return (
-      <NavigationContainer>
-        <ThemeProvider theme={theme}>
-          <Stack.Navigator initialRouteName="Logs" >
-            <Stack.Screen
-              name="Logs"
-              component={LogList}
-              options={{ headerShown: false }}
-            />
-            <Stack.Screen
-              name="Editor"
-              component={Log}>
-            </Stack.Screen>
-          </Stack.Navigator>
-        </ThemeProvider>
-      </NavigationContainer>
-    );
-  }
+	render() {
+		return (
+			<NavigationContainer>
+				<ThemeProvider theme={ theme }>
+				<Stack.Navigator initialRouteName="Home" >
+					<Stack.Screen
+						name="Home"
+						options={{
+							title: '',
+							headerStyle: {
+							  backgroundColor: theme.FOURTH,
+							  elevation: 0
+							},
+							cardShadowEnabled: false,
+						}}
+					>
+						{ props => <Home {...props} theme={ theme }/>}
+					</Stack.Screen>
+					<Stack.Screen
+						name="Logs"
+						component={LogList}
+						options={{ headerShown: false }}
+					/>
+					<Stack.Screen name="Editor">
+						{ props => <Log {...props} theme={ theme } date=" 27 June 2020" />}
+					</Stack.Screen>
+				</Stack.Navigator>
+				</ThemeProvider>
+			</NavigationContainer>
+		);
+	}
 }
