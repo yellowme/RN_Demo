@@ -1,114 +1,58 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- * @flow strict-local
- */
+import 'react-native-gesture-handler';
+import React, { Component, useState } from 'react';
+import { Text, View, TextInput, ScrollView, FlatList, Button } from 'react-native';
+import styled, { ThemeConsumer, ThemeProvider } from 'styled-components';
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
 
-import React from 'react';
-import {
-  SafeAreaView,
-  StyleSheet,
-  ScrollView,
-  View,
-  Text,
-  StatusBar,
-} from 'react-native';
+import Log from "./components/Log";
+import theme from './theme';
+import Home from './components/Home';
+import LogList from './components/LogList';
 
-import {
-  Header,
-  LearnMoreLinks,
-  Colors,
-  DebugInstructions,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+const Container = styled.View`
+	flex: 1;
+	background-color: ${ props => props.theme.FOURTH};
+	justify-content: center;
+	align-items: center;
+`;
 
-const App: () => React$Node = () => {
-  return (
-    <>
-      <StatusBar barStyle="dark-content" />
-      <SafeAreaView>
-        <ScrollView
-          contentInsetAdjustmentBehavior="automatic"
-          style={styles.scrollView}>
-          <Header />
-          {global.HermesInternal == null ? null : (
-            <View style={styles.engine}>
-              <Text style={styles.footer}>Engine: Hermes</Text>
-            </View>
-          )}
-          <View style={styles.body}>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Step One</Text>
-              <Text style={styles.sectionDescription}>
-                Edit <Text style={styles.highlight}>App.js</Text> to change this
-                screen and then come back to see your edits.
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>See Your Changes</Text>
-              <Text style={styles.sectionDescription}>
-                <ReloadInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Debug</Text>
-              <Text style={styles.sectionDescription}>
-                <DebugInstructions />
-              </Text>
-            </View>
-            <View style={styles.sectionContainer}>
-              <Text style={styles.sectionTitle}>Learn More</Text>
-              <Text style={styles.sectionDescription}>
-                Read the docs to discover what to do next:
-              </Text>
-            </View>
-            <LearnMoreLinks />
-          </View>
-        </ScrollView>
-      </SafeAreaView>
-    </>
-  );
-};
+const Stack = createStackNavigator();
 
-const styles = StyleSheet.create({
-  scrollView: {
-    backgroundColor: Colors.lighter,
-  },
-  engine: {
-    position: 'absolute',
-    right: 0,
-  },
-  body: {
-    backgroundColor: Colors.white,
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-    color: Colors.black,
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-    color: Colors.dark,
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-  footer: {
-    color: Colors.dark,
-    fontSize: 12,
-    fontWeight: '600',
-    padding: 4,
-    paddingRight: 12,
-    textAlign: 'right',
-  },
-});
+export default class App extends React.Component {
+  constructor(props) {
+    super(props);
+  }
 
-export default App;
+	render() {
+		return (
+			<NavigationContainer>
+				<ThemeProvider theme={ theme }>
+				<Stack.Navigator initialRouteName="Home" >
+					<Stack.Screen
+						name="Home"
+						options={{
+							title: '',
+							headerStyle: {
+							  backgroundColor: theme.FOURTH,
+							  elevation: 0
+							},
+							cardShadowEnabled: false,
+						}}
+					>
+						{ props => <Home {...props} theme={ theme }/>}
+					</Stack.Screen>
+					<Stack.Screen
+						name="Logs"
+						component={LogList}
+						options={{ headerShown: false }}
+					/>
+					<Stack.Screen name="Editor">
+						{ props => <Log {...props} theme={ theme } date=" 27 June 2020" />}
+					</Stack.Screen>
+				</Stack.Navigator>
+				</ThemeProvider>
+			</NavigationContainer>
+		);
+	}
+}
