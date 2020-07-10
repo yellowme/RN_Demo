@@ -2,7 +2,7 @@ import React from 'react';
 import styled from "styled-components";
 
 const Title = styled.Text`
-    font-family: DM Serif Display;
+    font-family: DMSerifDisplay-Regular;
     font-style: normal;
     font-weight: normal;
     font-size: 36px;
@@ -10,7 +10,7 @@ const Title = styled.Text`
     color: ${ props => props.color };
 `;
 const SpanTitle = styled.Text`
-    font-family: DM Serif Display;
+    font-family: DMSerifDisplay-Regular;
     font-style: normal;
     font-weight: normal;
     font-size: 36px;
@@ -20,7 +20,7 @@ const SpanTitle = styled.Text`
 
 export default YourTitle = props => (
     <Title color={ props.theme.SECONDARY }>
-        { props.firstWord ? props.firstWord : "Your"}
+        { props.firstWord ? props.firstWord : "Your" }
         <SpanTitle color={ props.theme.PRIMARY }> { props.secondWord } </SpanTitle>
     </Title>
 );
