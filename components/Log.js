@@ -5,26 +5,20 @@ import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import { Button } from "react-native";
 import { LogSchema } from "./LogList";
 import { months } from "./LogList"
+import CustomButton from "./CustomButton";
 
 const richText = React.createRef();
 
-const theme = {
-    mode: 'main',
-    PRIMARY: "#BD5AEC",
-    SECONDARY: "#000",
-    THIRD: "#FCFCFC",
-    FOURTH: "#F4ECFF",
-    FIFTH: "#fff",
-    PRIMARY_BTN_SHADOW: "#E9BBFF"
-}
-
-let realm = new Realm({ schema: [LogSchema] });
 
 const Save = async (title, date, id) => {
 
     let html = await richText.current?.getContentHtml();
+    let justText = '';
+    let realm = new Realm({ schema: [LogSchema] });
+
     html = html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
-    let justText = html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
+    justText = html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
+
     realm.write(() => {
         let timestamp;
         if (id !== null) {
@@ -47,50 +41,60 @@ export default class Log extends React.Component {
                 formattedContent: this.props.route.params.formattedContent,
                 date: this.props.route.params.date,
                 timestamp: this.props.route.params.id,
-                realm: null
+                realm: new Realm({ schema: [LogSchema] })
             }
         } else {
             this.state = {
                 title: "",
                 date: new window.Date(),
                 timestamp: null,
-                realm: null
+                realm: new Realm({ schema: [LogSchema] })
             }
         }
     }
 
     render() {
+
+        const { theme, navigation } = this.props;
+
         return (
             <LogContainer backgroundColor={theme.FOURTH} >
-                <YourTitle secondWord="Day" theme={theme} />
-                <Date color={theme.SECONDARY}>{months[this.state.date.getMonth()] + " " + this.state.date.getDate() + " " + this.state.date.getFullYear()}</Date>
+                <YourTitle secondWord="Day" theme={ theme } />
+                <Date color={theme.SECONDARY}>
+                    { months[this.state.date.getMonth()] + " " + this.state.date.getDate() + " " + this.state.date.getFullYear() }
+                </Date>
                 <FullEditorContainer style={{ marginBottom: 15 }}>
-                    <EditorContainer backgroundColor={theme.THIRD}>
+                    <EditorContainer backgroundColor={ theme.THIRD }>
                         <Title
-                            color={theme.SECONDARY}
+                            color={ theme.SECONDARY }
                             placeholder="Name your log"
-                            onChangeText={text => this.setState({ title: text })}
-                            value={this.state.title}
+                            onChangeText={ text => this.setState({ title: text }) }
+                            value={ this.state.title }
                         />
                         <RichEditor
                             editorStyle={{ backgroundColor: theme.THIRD }}
-                            style={[{ minHeight: 380, flex: 1 }, theme.THIRD]}
-                            ref={richText}
-                            useContainer={false}
+                            style={ [{ minHeight: 380, flex: 1 }, theme.THIRD] }
+                            ref={ richText }
+                            useContainer={ false }
                             placeholder="Write here your story..."
-                            initialContentHTML={this.state.formattedContent}
+                            initialContentHTML={ this.state.formattedContent }
                         />
                     </EditorContainer>
                     <RichToolbar
-                        editor={richText}
-                        iconTint={theme.SECONDARY}
-                        style={[{ backgroundColor: theme.FOURTH, marginTop: 26 }, theme.FOURTH]}
+                        editor={ richText }
+                        iconTint={ theme.SECONDARY }
+                        style={ [{ backgroundColor: theme.FOURTH, marginTop: 26 }, theme.FOURTH] }
                     />
                 </FullEditorContainer>
-                <Button title="Save" onPress={() => {
-                    Save(this.state.title, this.state.date, this.state.timestamp)
-                    this.props.navigation.goBack();
-                }} ></Button>
+                <CustomButton
+                    text="SAVE"
+                    theme={ theme }
+                    function={() => {
+                        Save(this.state.title, this.state.date, this.state.timestamp);
+                        navigation.goBack();
+                    }}
+                >
+                </CustomButton>
             </LogContainer>
         );
     }
