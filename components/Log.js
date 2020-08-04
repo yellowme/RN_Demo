@@ -2,15 +2,27 @@ import React from "react";
 import styled from "styled-components";
 import YourTitle from "./YourTitle";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
-import { Button } from "react-native";
 import { LogSchema } from "./LogList";
 import { months } from "./LogList"
 import CustomButton from "./CustomButton";
+import { Image, StyleSheet, View } from 'react-native';
+import ImagePicker from 'react-native-image-picker'
+import RNFetchBlob from "react-native-fetch-blob";
 
 const richText = React.createRef();
 
+const imagePath = 'yourjournal'
 
-const Save = async (title, date, id) => {
+const pickerOptions = {
+    title: "Select Image",
+    storageOptions: {
+        skipBackup: true,
+        path: imagePath,
+    },
+}
+
+
+const Save = async (title, date, id, imageFile) => {
 
     let html = await richText.current?.getContentHtml();
     let justText = '';
@@ -23,10 +35,10 @@ const Save = async (title, date, id) => {
         let timestamp;
         if (id !== null) {
             timestamp = id;
-            realm.create('Log', { id: timestamp, title: title, date: date, content: justText, formattedContent: html }, true);
+            realm.create('Log', { id: timestamp, title: title, date: date, content: justText, formattedContent: html, image: imageFile }, true);
         } else {
             timestamp = new window.Date().toString();
-            realm.create('Log', { id: timestamp, title: title, date: date, content: justText, formattedContent: html });
+            realm.create('Log', { id: timestamp, title: title, date: date, content: justText, formattedContent: html, image: imageFile });
         }
     })
 }
@@ -41,15 +53,29 @@ export default class Log extends React.Component {
                 formattedContent: this.props.route.params.formattedContent,
                 date: this.props.route.params.date,
                 timestamp: this.props.route.params.id,
-                realm: new Realm({ schema: [LogSchema] })
+                imageFile: this.props.route.params.image,
+                realm: new Realm({ schema: [LogSchema] }),
+                width: this.props.route.params.image ? 274 : 0,
+                height: this.props.route.params.image ? 161 : 0
             }
         } else {
             this.state = {
                 title: "",
                 date: new window.Date(),
                 timestamp: null,
-                realm: new Realm({ schema: [LogSchema] })
+                realm: new Realm({ schema: [LogSchema] }),
+                imageFile: null,
+                width: 0,
+                height: 0
             }
+        }
+
+        if (this.state.imageFile !== null) {
+            RNFetchBlob.fs.readFile(this.state.imageFile, 'base64')
+                .then((data) => {
+                    console.log('Read data is: ' + data);
+                    this.setState({ imageData: data });
+                })
         }
     }
 
@@ -59,38 +85,83 @@ export default class Log extends React.Component {
 
         return (
             <LogContainer backgroundColor={theme.FOURTH} >
-                <YourTitle secondWord="Day" theme={ theme } />
+                <YourTitle secondWord="Day" theme={theme} />
                 <Date color={theme.SECONDARY}>
-                    { months[this.state.date.getMonth()] + " " + this.state.date.getDate() + " " + this.state.date.getFullYear() }
+                    {months[this.state.date.getMonth()] + " " + this.state.date.getDate() + " " + this.state.date.getFullYear()}
                 </Date>
+
                 <FullEditorContainer style={{ marginBottom: 15 }}>
-                    <EditorContainer backgroundColor={ theme.THIRD }>
+                    <EditorContainer backgroundColor={theme.THIRD}>
                         <Title
-                            color={ theme.SECONDARY }
+                            color={theme.SECONDARY}
                             placeholder="Name your log"
-                            onChangeText={ text => this.setState({ title: text }) }
-                            value={ this.state.title }
+                            onChangeText={text => this.setState({ title: text })}
+                            value={this.state.title}
                         />
                         <RichEditor
                             editorStyle={{ backgroundColor: theme.THIRD }}
-                            style={ [{ minHeight: 380, flex: 1 }, theme.THIRD] }
-                            ref={ richText }
-                            useContainer={ false }
+                            style={[{ minHeight: 380, flex: 1 }, theme.THIRD]}
+                            ref={richText}
+                            useContainer={false}
                             placeholder="Write here your story..."
-                            initialContentHTML={ this.state.formattedContent }
+                            initialContentHTML={this.state.formattedContent}
                         />
                     </EditorContainer>
                     <RichToolbar
-                        editor={ richText }
-                        iconTint={ theme.SECONDARY }
-                        style={ [{ backgroundColor: theme.FOURTH, marginTop: 26 }, theme.FOURTH] }
+                        editor={richText}
+                        iconTint={theme.SECONDARY}
+                        style={[{ backgroundColor: theme.FOURTH, marginTop: 26 }, theme.FOURTH]}
+                        onPressAddImage={() => {
+                            let date = new window.Date().getTime().toString();
+                            let fileName = RNFetchBlob.fs.dirs.DocumentDir + '/' + date + '.jpg';
+
+                            ImagePicker.showImagePicker(pickerOptions, (response) => {
+                                if (response.didCancel) {
+                                    console.log('User cancelled image picker');
+                                } else if (response.error) {
+                                    console.log('ImagePicker Error: ', response.error);
+                                } else {
+                                    const base64data = response.data;
+                                    console.log('Created data is ' + base64data);
+                                    try {
+                                        RNFetchBlob.fs.writeFile(fileName, base64data, 'base64').then(() => {
+                                            console.log('File name is ' + fileName);
+
+                                            this.setState({ imageFile: fileName });
+
+                                            RNFetchBlob.fs.readFile(fileName, 'base64')
+                                                .then((data) => {
+                                                    console.log('Read data is: ' + data);
+                                                    this.setState({ imageData: data });
+                                                    this.setState({ width: 274, height: 161 });
+                                                })
+                                        });
+
+                                    } catch (error) {
+                                        console.log(error);
+                                    }
+
+
+                                }
+                            });
+                        }}
                     />
+
+                    <View style={{ flexDirection: 'row', justifyContent: "space-between", marginTop: 20 }}>
+                        <Image
+                            style={{ width: this.state.width, height: this.state.height, borderRadius: 25 , flex: 1}}
+                            source={{
+                                uri: 'data:image/jpeg;base64,' + this.state.imageData
+                            }}
+                        />
+                    </View>
+
                 </FullEditorContainer>
                 <CustomButton
                     text="SAVE"
-                    theme={ theme }
+                    theme={theme}
                     function={() => {
-                        Save(this.state.title, this.state.date, this.state.timestamp);
+                        Save(this.state.title, this.state.date, this.state.timestamp, this.state.imageFile);
                         navigation.goBack();
                     }}
                 >

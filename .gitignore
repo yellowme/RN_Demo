@@ -30,6 +30,8 @@ local.properties
 *.iml
 android/app/.project
 android/.project
+android/app/private_key.pepk
+android/app/release/
 
 # node.js
 #

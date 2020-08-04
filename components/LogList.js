@@ -1,8 +1,9 @@
 import 'react-native-gesture-handler';
-import React from 'react';
-import { Text, View, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { Text, View, FlatList, Image } from 'react-native';
 import styled from 'styled-components';
-import Edit from '../assets/icons/edit.svg'
+import Edit from '../assets/icons/edit.svg';
+import RNFetchBlob from "react-native-fetch-blob";
 
 export const LogSchema = {
     name: 'Log',
@@ -12,7 +13,8 @@ export const LogSchema = {
         title: 'string',
         date: 'date',
         content: 'string',
-        formattedContent: 'string'
+        formattedContent: 'string',
+        image: 'string?'
     }
 };
 
@@ -27,7 +29,7 @@ const Title = styled.Text`
 
 const EntryButton = styled.TouchableOpacity`
   width: 96px;
-	height: 48px;
+  height: 48px;
   background: #BD5AEC;
   border-top-right-radius: 48px;
   border-top-left-radius: 48px;
@@ -40,15 +42,21 @@ const DayBox = styled.View`
   height: 30px;
   background: black;
   position: absolute;
-  top: -15px;
+  
   left: 16px;
   justify-content: center;
   align-items: center;
+  border-radius: 2px;
 `;
 
 const Day = styled.Text`
   color: white;
   font-size: 18px;
+`;
+
+const LogImage = styled.Image`
+  height: 200px;
+  border-radius: 12px;
 `;
 
 const EntryDataContainer = styled.TouchableOpacity`
@@ -57,33 +65,49 @@ const EntryDataContainer = styled.TouchableOpacity`
   margin-left: 16px;
   margin-right: 16px;
   background: #FCFCFC;
-  padding: 16px;
+  padding-bottom: 16px;
   box-shadow: 0px 2px 16px black;
-  border-radius: 12px;
+  border-top-start-radius: 12px;
+  border-top-end-radius: 12px;
+  border-bottom-start-radius: 12px;
   elevation: 10;
 `;
 
 function JournalEntry(props) {
+    const [imageData, setImageData] = useState(null);
+
+    if (props.item.image !== null) {
+        RNFetchBlob.fs.readFile(props.item.image, 'base64')
+            .then((data) => {
+                setImageData(data);
+                console.log('Read data is: ' + data);
+            })
+    }
+
     return (
         <View style={{ flex: 1, marginStart: 20, marginEnd: 20 }}>
             <EntryDataContainer onPress={() => {
                 props.navigation.navigate('Editor', props.item)
             }}>
-                <DayBox>
-                    <Day>{ props.date.getDate() }</Day>
+                <LogImage
+                    style={{ height: imageData ? 200 : 0 }}
+                    source={{ uri: imageData ? ('data:image/jpeg;base64,' + imageData) : null }}
+                />
+
+                <DayBox style={{ top: imageData ? 185 : -15 }}>
+                    <Day>{props.date.getDate()}</Day>
                 </DayBox>
-                <View>
+                <View style={{ marginStart: 16, marginEnd: 16, marginTop: 16 }}>
                     <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 14 }}>
-                        { months[props.date.getMonth()] + " " + props.date.getFullYear() }
+                        {months[props.date.getMonth()] + " " + props.date.getFullYear()}
                     </Text>
                     <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 18 }}>
-                        { props.title }
+                        {props.title}
                     </Text>
                     <Text
                         numberOfLines={1}
-                        style={{ fontFamily: "NotoSans-Regular", fontSize: 14 }}
-                    >
-                        { props.content }
+                        style={{ fontFamily: "NotoSans-Regular", fontSize: 14 }}>
+                        {props.content}
                     </Text>
                 </View>
             </EntryDataContainer>
@@ -112,7 +136,7 @@ export default class LogList extends React.Component {
         }
     }
 
-    componentDidMount(){
+    componentDidMount() {
         this.setState({
             logs: this.state.realm.objects('Log')
         })
@@ -125,8 +149,9 @@ export default class LogList extends React.Component {
                     Your
               <Title style={{ color: '#BD5AEC' }}> journal</Title>
                 </Title>
-                { this.state.logs !== null &&
+                {this.state.logs !== null &&
                     <FlatList
+                        extraData={this.state}
                         style={{ flex: 1 }}
                         data={this.state.logs.sorted('date', true)}
                         renderItem={({ item }) => (
