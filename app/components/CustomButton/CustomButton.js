@@ -2,14 +2,14 @@ import React from 'react';
 import styled from 'styled-components';
 
 const ButtonContainer = styled.TouchableOpacity`
-width: 136px;
-height: 44px;
-background: ${ props => props.primary };
-box-shadow: 0px 0px 16px ${ props => props.shadow };
-border-radius: 12px;
-padding: 13px 34px;
-shadowColor: ${ props => props.shadow };
-elevation: 10;
+    width: 136px;
+    height: 44px;
+    background: ${ props => props.primary };
+    box-shadow: 0px 0px 16px ${ props => props.shadow };
+    border-radius: 12px;
+    padding: 13px 34px;
+    shadowColor: ${ props => props.shadow };
+    elevation: 10;
 `;
 
 const ButtonText = styled.Text`
@@ -18,13 +18,11 @@ const ButtonText = styled.Text`
     font-weight: bold;
     font-size: 14px;
     line-height: 19px;
-
     text-align: center;
-
     color: ${ props => props.color };
 `;
 
-export default CustomButton = props => (
+const CustomButton = props => (
     <ButtonContainer
         onPress={ props.function }
         primary={ props.theme.PRIMARY }
@@ -33,3 +31,5 @@ export default CustomButton = props => (
         <ButtonText color={ props.theme.FIFTH} >{ props.text }</ButtonText>
     </ButtonContainer>
 );
+
+export default CustomButton;

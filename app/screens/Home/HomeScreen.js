@@ -1,9 +1,7 @@
 import React from "react";
 import styled from "styled-components";
-
-import YourTitle from "./YourTitle";
-import CustomButton from "../components/CustomButton";
-import { NavigationContainer } from "@react-navigation/native";
+import YourTitle from "app/components/YourTitle";
+import CustomButton from "app/components/CustomButton";
 
 const Container = styled.View`
     flex: 1;
@@ -25,7 +23,7 @@ const ButtonsContainer = styled.View`
     right: 0;
 `;
 
-export default Home = ({ theme, navigation}) => (
+const Home = ({ theme, navigation}) => (
     <Container theme={ theme }>
         <YourTitle firstWord="Your logs" theme={ theme } />
         <YourTitle firstWord="Your omg" theme={ theme } />
@@ -39,3 +37,5 @@ export default Home = ({ theme, navigation}) => (
         </ButtonsContainer>
     </Container>
 );
+
+export default Home;
