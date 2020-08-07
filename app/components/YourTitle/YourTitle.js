@@ -18,9 +18,11 @@ const SpanTitle = styled.Text`
     color: ${ props => props.color };
 `;
 
-export default YourTitle = props => (
+const YourTitle = props => (
     <Title color={ props.theme.SECONDARY }>
         { props.firstWord ? props.firstWord : "Your" }
         <SpanTitle color={ props.theme.PRIMARY }> { props.secondWord } </SpanTitle>
     </Title>
 );
+
+export default YourTitle;

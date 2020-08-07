@@ -1,21 +1,13 @@
 import 'react-native-gesture-handler';
-import React, { Component, useState } from 'react';
-import { Text, View, TextInput, ScrollView, FlatList, Button } from 'react-native';
-import styled, { ThemeConsumer, ThemeProvider } from 'styled-components';
+import React from 'react';
+import { ThemeProvider } from 'styled-components';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Log from "./components/Log";
-import theme from './theme';
-import Home from './components/Home';
-import LogList from './components/LogList';
-
-const Container = styled.View`
-	flex: 1;
-	background-color: ${ props => props.theme.FOURTH};
-	justify-content: center;
-	align-items: center;
-`;
+import Log from "app/components/Log";
+import theme from 'app/config/theme';
+import Home from 'app/screens/Home';
+import LogList from 'app/screens/LogList';
 
 const Stack = createStackNavigator();
 

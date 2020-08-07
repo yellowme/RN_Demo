@@ -1,11 +1,11 @@
 import React from "react";
 import styled from "styled-components";
-import YourTitle from "./YourTitle";
+import YourTitle from "./YourTitle/YourTitle";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
 import { Button } from "react-native";
-import { LogSchema } from "./LogList";
-import { months } from "./LogList"
-import CustomButton from "./CustomButton";
+import { LogSchema } from "../screens/LogList/LogList";
+import { months } from "../screens/LogList/LogList"
+import CustomButton from "./CustomButton/CustomButton";
 
 const richText = React.createRef();
 

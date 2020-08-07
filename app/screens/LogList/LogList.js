@@ -2,7 +2,7 @@ import 'react-native-gesture-handler';
 import React from 'react';
 import { Text, View, FlatList } from 'react-native';
 import styled from 'styled-components';
-import Edit from '../assets/icons/edit.svg'
+import Edit from 'app/assets/icons/edit.svg'
 
 export const LogSchema = {
     name: 'Log',
@@ -91,7 +91,7 @@ function JournalEntry(props) {
     );
 }
 
-export default class LogList extends React.Component {
+class LogList extends React.Component {
     constructor(props) {
         super(props);
         this.state = { realm: new Realm({ schema: [LogSchema] }), logs: null }
@@ -160,3 +160,5 @@ export default class LogList extends React.Component {
         );
     }
 }
+
+export default LogList;
