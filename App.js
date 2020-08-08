@@ -4,7 +4,7 @@ import { ThemeProvider } from 'styled-components';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 
-import Log from "app/components/Log/Log";
+import Log from "app/components/Log";
 import theme from 'app/config/theme';
 import Home from 'app/screens/Home';
 import LogList from 'app/screens/LogList';
