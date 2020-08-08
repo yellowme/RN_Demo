@@ -1,67 +1,59 @@
-import React from "react";
+import React, { Component } from 'react'
 import styled from "styled-components";
-import YourTitle from "./YourTitle/YourTitle";
+import YourTitle from "../YourTitle";
+import CustomButton from "../CustomButton";
 import { RichEditor, RichToolbar } from "react-native-pell-rich-editor";
-import { Button } from "react-native";
-import { LogSchema } from "../screens/LogList/LogList";
-import { months } from "../screens/LogList/LogList"
-import CustomButton from "./CustomButton/CustomButton";
+import LogRealmService from "app/services/LogRealmService/LogRealmService";
+import DateHelper from "app/helpers/DateHelper";
 
+const logService = new LogRealmService();
 const richText = React.createRef();
 
+class Log extends Component {
 
-const Save = async (title, date, id) => {
-
-    let html = await richText.current?.getContentHtml();
-    let justText = '';
-    let realm = new Realm({ schema: [LogSchema] });
-
-    html = html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
-    justText = html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
-
-    realm.write(() => {
-        let timestamp;
-        if (id !== null) {
-            timestamp = id;
-            realm.create('Log', { id: timestamp, title: title, date: date, content: justText, formattedContent: html }, true);
-        } else {
-            timestamp = new window.Date().toString();
-            realm.create('Log', { id: timestamp, title: title, date: date, content: justText, formattedContent: html });
-        }
-    })
-}
-
-export default class Log extends React.Component {
     constructor(props) {
         super(props);
-
         if (this.props.route.params !== undefined) {
             this.state = {
                 title: this.props.route.params.title,
                 formattedContent: this.props.route.params.formattedContent,
                 date: this.props.route.params.date,
-                timestamp: this.props.route.params.id,
-                realm: new Realm({ schema: [LogSchema] })
+                timestamp: this.props.route.params.id
             }
         } else {
             this.state = {
                 title: "",
                 date: new window.Date(),
-                timestamp: null,
-                realm: new Realm({ schema: [LogSchema] })
+                timestamp: null
             }
         }
     }
 
-    render() {
+    componentDidMount() {
+      logService.init()
+    }
 
+    componentWillUnmount() {
+      logService.close()
+    }
+
+  render() {
         const { theme, navigation } = this.props;
+
+        const saveLog = async () => {
+            const { title, date, timestamp } = this.state;
+            let html = await richText.current?.getContentHtml();
+            await logService.save(timestamp, title, date, html)
+        };
 
         return (
             <LogContainer backgroundColor={theme.FOURTH} >
                 <YourTitle secondWord="Day" theme={ theme } />
-                <Date color={theme.SECONDARY}>
-                    { months[this.state.date.getMonth()] + " " + this.state.date.getDate() + " " + this.state.date.getFullYear() }
+                <Date color={theme.SECONDARY}>{
+                        DateHelper.getNameOfMonth(this.state.date.getMonth()) +
+                        " " + this.state.date.getDate() +
+                        " " + this.state.date.getFullYear()
+                 }
                 </Date>
                 <FullEditorContainer style={{ marginBottom: 15 }}>
                     <EditorContainer backgroundColor={ theme.THIRD }>
@@ -90,7 +82,7 @@ export default class Log extends React.Component {
                     text="SAVE"
                     theme={ theme }
                     function={() => {
-                        Save(this.state.title, this.state.date, this.state.timestamp);
+                        saveLog();
                         navigation.goBack();
                     }}
                 >
@@ -100,6 +92,8 @@ export default class Log extends React.Component {
     }
 
 }
+
+export default Log;
 
 const LogContainer = styled.View`
     flex: 1;
