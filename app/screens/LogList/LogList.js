@@ -1,22 +1,12 @@
 import 'react-native-gesture-handler';
 import React from 'react';
-import { Text, View, FlatList } from 'react-native';
+import {FlatList, Text, View} from 'react-native';
 import styled from 'styled-components';
 import Edit from 'app/assets/icons/edit.svg'
+import DateHelper from "app/helpers/DateHelper";
+import LogRealmService from "app/services/LogRealmService/LogRealmService";
 
-export const LogSchema = {
-    name: 'Log',
-    primaryKey: 'id',
-    properties: {
-        id: 'string',
-        title: 'string',
-        date: 'date',
-        content: 'string',
-        formattedContent: 'string'
-    }
-};
-
-export const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+const logService = new LogRealmService();
 
 const Title = styled.Text`
   font-size: 36px;
@@ -64,101 +54,94 @@ const EntryDataContainer = styled.TouchableOpacity`
 `;
 
 function JournalEntry(props) {
-    return (
-        <View style={{ flex: 1, marginStart: 20, marginEnd: 20 }}>
-            <EntryDataContainer onPress={() => {
-                props.navigation.navigate('Editor', props.item)
-            }}>
-                <DayBox>
-                    <Day>{ props.date.getDate() }</Day>
-                </DayBox>
-                <View>
-                    <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 14 }}>
-                        { months[props.date.getMonth()] + " " + props.date.getFullYear() }
-                    </Text>
-                    <Text style={{ fontFamily: "NotoSans-Bold", fontSize: 18 }}>
-                        { props.title }
-                    </Text>
-                    <Text
-                        numberOfLines={1}
-                        style={{ fontFamily: "NotoSans-Regular", fontSize: 14 }}
-                    >
-                        { props.content }
-                    </Text>
-                </View>
-            </EntryDataContainer>
+  return (
+    <View style={{flex: 1, marginStart: 20, marginEnd: 20}}>
+      <EntryDataContainer onPress={() => {
+        props.navigation.navigate('Editor', props.item)
+      }}>
+        <DayBox>
+          <Day>{props.date.getDate()}</Day>
+        </DayBox>
+        <View>
+          <Text style={{fontFamily: "NotoSans-Bold", fontSize: 14}}>
+            {DateHelper.getNameOfMonth(props.date.getMonth()) + " " + props.date.getFullYear()}
+          </Text>
+          <Text style={{fontFamily: "NotoSans-Bold", fontSize: 18}}>
+            {props.title}
+          </Text>
+          <Text
+            numberOfLines={1}
+            style={{fontFamily: "NotoSans-Regular", fontSize: 14}}
+          >
+            {props.content}
+          </Text>
         </View>
-    );
+      </EntryDataContainer>
+    </View>
+  );
 }
 
 class LogList extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = { realm: new Realm({ schema: [LogSchema] }), logs: null }
-        this.state.realm.addListener('change', () => {
-            this.forceUpdate()
-        });
-    }
 
-    componentWillUnmount() {
-        const { realm } = this.state;
+  constructor(props) {
+    super(props);
+    this.state = { logs: null };
+  }
 
-        this.setState({
-            logs: this.state.realm.objects('Log')
-        })
+  componentDidMount() {
+    logService.init();
+    logService.addOnChangeListener(() => {
+      this.forceUpdate()
+    });
+    this.setState({ logs: logService.getAll() })
+  }
 
-        if (realm !== null && !realm.isClosed) {
-            realm.close();
+  componentWillUnmount() {
+    logService.close()
+  }
+
+  render() {
+    const { logs } = this.state;
+
+    return (
+      <View style={{flex: 1, paddingTop: 20}}>
+        <Title style={{color: '#000000'}}>
+          Your
+          <Title style={{color: '#BD5AEC'}}> journal</Title>
+        </Title>
+        {logs !== null &&
+        <FlatList
+          style={{flex: 1}}
+          data={logs.sorted('date', true)}
+          renderItem={({item}) => (
+            <JournalEntry
+              title={item.title}
+              date={item.date}
+              content={item.content}
+              navigation={this.props.navigation}
+              item={item}
+            />
+          )}
+          keyExtractor={(item, index) => index.toString()}
+        />
         }
-    }
 
-    componentDidMount(){
-        this.setState({
-            logs: this.state.realm.objects('Log')
-        })
-    }
+        <View style={{
+          marginTop: 20,
+          alignItems: "center",
+        }}>
 
-    render() {
-        return (
-            <View style={{ flex: 1, paddingTop: 20 }}>
-                <Title style={{ color: '#000000' }}>
-                    Your
-              <Title style={{ color: '#BD5AEC' }}> journal</Title>
-                </Title>
-                { this.state.logs !== null &&
-                    <FlatList
-                        style={{ flex: 1 }}
-                        data={this.state.logs.sorted('date', true)}
-                        renderItem={({ item }) => (
-                            <JournalEntry
-                                title={item.title}
-                                date={item.date}
-                                content={item.content}
-                                navigation={this.props.navigation}
-                                item={item}
-                            />
-                        )}
-                        keyExtractor={(item, index) => index.toString()}
-                    />
-                }
+          <EntryButton
+            onPress={() => {
+              this.props.navigation.navigate('Editor', undefined)
+            }}>
+            <Edit width={25} height={25}/>
+          </EntryButton>
 
-
-                <View style={{
-                    marginTop: 20,
-                    alignItems: "center",
-                }}>
-
-                    <EntryButton
-                        onPress={() => {
-                            this.props.navigation.navigate('Editor', undefined)
-                        }}>
-                        <Edit width={25} height={25} />
-                    </EntryButton>
-
-                </View>
-            </View>
-        );
-    }
+        </View>
+      </View>
+    );
+  }
 }
 
 export default LogList;
