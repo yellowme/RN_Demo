@@ -9,7 +9,7 @@ class LogRealmService {
     realm = new Realm({schema: [LogRealmSchema]});
   }
 
-  save = async (id, title, date, html) => {
+  save = async (id, title, date, html, imageFile) => {
     let justText = '';
 
     html = html.replace(/<[^>]*>/g, ' ').replace(/\s{2,}/g, ' ').trim();
@@ -32,7 +32,8 @@ class LogRealmService {
           title: title,
           date: date,
           content: justText,
-          formattedContent: html
+          formattedContent: html,
+          image: imageFile
         },
         update);
     });

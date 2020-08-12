@@ -80,6 +80,8 @@ target 'RN_Demo' do
 
   pod 'RNSVG', :path => '../node_modules/react-native-svg'
 
+  pod 'rn-fetch-blob', :path => '../node_modules/rn-fetch-blob'
+
   target 'RN_DemoTests' do
     inherit! :complete
     # Pods for testing

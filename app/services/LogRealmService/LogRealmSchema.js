@@ -6,6 +6,7 @@ export const LogRealmSchema = {
     title: 'string',
     date: 'date',
     content: 'string',
-    formattedContent: 'string'
+    formattedContent: 'string',
+    image: 'string?'
   }
 };
