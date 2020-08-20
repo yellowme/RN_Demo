@@ -146,7 +146,7 @@ class LogList extends React.Component {
                 item={item}
               />
             )}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={item => item.id}
           />
         }
 
